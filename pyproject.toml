@@ -1,6 +1,6 @@
 [project]
 name = "simple-backup"
-version = "0.1.4"
+version = "0.1.5"
 description = "Простой инструмент для создания и восстановления бэкапов проектов в YAML формате"
 readme = "README.md"
 requires-python = ">=3.9"
