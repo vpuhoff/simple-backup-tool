@@ -12,6 +12,7 @@ authors = [
     {name = "vpuhoff", email = "vpuhoff92@gmail.com"}
 ]
 keywords = ["backup", "yaml", "project", "restore", "cli"]
+urls = {Homepage = "https://github.com/vpuhoff/simple-backup-tool", Repository = "https://github.com/vpuhoff/simple-backup-tool"}
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
