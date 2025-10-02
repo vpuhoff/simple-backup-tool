@@ -116,6 +116,8 @@ pytest
 2. Создайте тег: `git tag v0.1.0 && git push origin v0.1.0`
 3. GitHub Actions автоматически опубликует пакет на PyPI
 
+**Новый способ (без API токенов):** Настройте PyPI Trusted Publishers в настройках PyPI → Trusted Publishers
+
 Подробные инструкции в [.github/RELEASE_SETUP.md](.github/RELEASE_SETUP.md)
 
 ## Лицензия

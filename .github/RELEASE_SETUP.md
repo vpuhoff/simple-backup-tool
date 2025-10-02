@@ -1,13 +1,29 @@
 # Настройка автоматических релизов
 
-## Настройка PyPI API Token
+## Настройка PyPI Trusted Publishers (рекомендуется)
+
+### Новый способ через Trusted Publishers (без API токенов!)
+
+1. Зайдите на [PyPI](https://pypi.org) и войдите в аккаунт
+2. Перейдите в Account Settings → Trusted Publishers
+3. Нажмите "Add a new pending publisher"
+4. Заполните форму:
+   - **Project name**: `simple-backup`
+   - **Owner**: `vpuhoff`
+   - **Repository name**: `simple-backup-tool`
+   - **Workflow filename**: `.github/workflows/auto-release.yml`
+   - **Environment name**: оставьте пустым (или укажите конкретное окружение)
+5. Нажмите "Add pending publisher"
+6. После этого PyPI будет автоматически публиковать пакеты при запуске workflow
+
+### Старый способ через API Token (если нужен)
 
 1. Зайдите на [PyPI](https://pypi.org) и войдите в аккаунт
 2. Перейдите в Account Settings → API tokens
 3. Создайте новый API token с правами на загрузку пакетов
 4. Скопируйте токен
 
-## Настройка GitHub Secrets
+## Настройка GitHub Secrets (только для старого способа)
 
 1. Перейдите в настройки репозитория GitHub
 2. Выберите Settings → Secrets and variables → Actions
