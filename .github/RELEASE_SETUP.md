@@ -11,10 +11,12 @@
    - **Project name**: `simple-backup`
    - **Owner**: `vpuhoff`
    - **Repository name**: `simple-backup-tool`
-   - **Workflow filename**: `.github/workflows/auto-release.yml`
+   - **Workflow filename**: `auto-release.yml` ⚠️ **ТОЛЬКО ИМЯ ФАЙЛА, БЕЗ ПУТИ!**
    - **Environment name**: оставьте пустым (или укажите конкретное окружение)
 
-**Важно**: Убедитесь, что все параметры точно совпадают с claims из ошибки:
+**Важно**: 
+- Workflow filename должен быть **`auto-release.yml`** (без `.github/workflows/`)
+- Убедитесь, что все параметры точно совпадают с claims из ошибки:
 - `repository`: `vpuhoff/simple-backup-tool` ✅
 - `workflow_ref`: `vpuhoff/simple-backup-tool/.github/workflows/auto-release.yml@refs/tags/v0.1.2` ✅
 5. Нажмите "Add pending publisher"

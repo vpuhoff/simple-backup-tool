@@ -30,8 +30,10 @@
 - **Repository name**: `simple-backup-tool` (точно как в `repository`)
 
 ### Workflow параметры:
-- **Workflow filename**: `.github/workflows/auto-release.yml`
+- **Workflow filename**: `auto-release.yml` ⚠️ **ТОЛЬКО ИМЯ ФАЙЛА!**
 - **Environment name**: оставьте **ПУСТЫМ** (не указывайте никакое окружение)
+
+**КРИТИЧЕСКИ ВАЖНО**: В поле "Workflow filename" нужно указывать только имя файла `auto-release.yml`, а НЕ полный путь `.github/workflows/auto-release.yml`!
 
 ### Дополнительные проверки:
 - ✅ Убедитесь, что проект `simple-backup` уже существует на PyPI
