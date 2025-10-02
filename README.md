@@ -38,6 +38,9 @@ simple-backup restore backup.yml /path/to/restore --preview
 
 # Принудительная перезапись
 simple-backup restore backup.yml /path/to/restore --force
+
+# Мягкая перезапись (без удаления директорий)
+simple-backup restore backup.yml /path/to/restore --overwrite
 ```
 
 ## Примеры использования
@@ -78,6 +81,7 @@ simple-backup create project_backup.yml
 - ✅ Цветной вывод и эмодзи для лучшего UX
 - ✅ Предварительный просмотр перед восстановлением
 - ✅ Безопасная обработка ошибок
+- ✅ Мягкая перезапись файлов без удаления директорий
 
 ## Требования
 

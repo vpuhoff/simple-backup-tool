@@ -138,7 +138,7 @@ def create_directory_structure(base_path: Path, structure: Dict[str, Any], progr
 
 
 @click.group()
-@click.version_option(version='0.1.0')
+@click.version_option(version='0.1.8')
 def cli():
     """Simple Backup - Простой инструмент для создания и восстановления бэкапов проектов."""
     pass
@@ -209,7 +209,8 @@ def create(output_file, path, verbose):
 @click.argument('output_dir', type=click.Path())
 @click.option('--preview', '-p', is_flag=True, help='Показать предварительный просмотр')
 @click.option('--force', '-f', is_flag=True, help='Принудительно перезаписать существующую директорию')
-def restore(yaml_file, output_dir, preview, force):
+@click.option('--overwrite', '-o', is_flag=True, help='Перезаписать файлы без удаления директорий')
+def restore(yaml_file, output_dir, preview, force, overwrite):
     """Восстановить проект из YAML файла."""
     yaml_path = Path(yaml_file)
     output_path = Path(output_dir)
@@ -233,7 +234,7 @@ def restore(yaml_file, output_dir, preview, force):
             click.echo(f"Всего директорий: {metadata.get('total_directories', 'неизвестно')}")
             return
         
-        if output_path.exists() and not force:
+        if output_path.exists() and not force and not overwrite:
             if not click.confirm(f"Директория {output_path} уже существует. Удалить и пересоздать?"):
                 click.echo("Отменено пользователем")
                 return
@@ -241,14 +242,20 @@ def restore(yaml_file, output_dir, preview, force):
                 shutil.rmtree(output_path)
                 click.echo(f"🗑️  Удалена существующая директория: {output_path}")
         
-        click.echo(f"🔄 Восстановление проекта в: {output_path.absolute()}")
+        if overwrite:
+            click.echo(f"🔄 Перезапись файлов в: {output_path.absolute()}")
+        else:
+            click.echo(f"🔄 Восстановление проекта в: {output_path.absolute()}")
         
         output_path.mkdir(parents=True, exist_ok=True)
         
         with click.progressbar(length=metadata.get('total_files', 1), label='Восстановление файлов') as bar:
             created_files = create_directory_structure(output_path, project_data['structure'], bar)
         
-        click.echo(f"\n✓ Восстановление завершено!")
+        if overwrite:
+            click.echo(f"\n✓ Перезапись завершена!")
+        else:
+            click.echo(f"\n✓ Восстановление завершено!")
         click.echo(f"📊 Статистика:")
         click.echo(f"   - Создано файлов: {created_files}")
         click.echo(f"   - Ожидалось файлов: {metadata.get('total_files', 'неизвестно')}")

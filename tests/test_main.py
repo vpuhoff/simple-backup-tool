@@ -133,6 +133,52 @@ class TestDirectoryStructure:
 class TestIntegration:
     """Интеграционные тесты"""
     
+    def test_overwrite_mode(self):
+        """Тест режима перезаписи без удаления директорий"""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            source_path = temp_path / 'source'
+            backup_path = temp_path / 'backup.yml'
+            restore_path = temp_path / 'restore'
+            
+            # Создаем исходную структуру
+            source_path.mkdir()
+            (source_path / 'main.py').write_text('print("hello")', encoding='utf-8')
+            (source_path / 'README.md').write_text('# Project', encoding='utf-8')
+            
+            # Создаем бэкап
+            project_structure = scan_directory(source_path)
+            
+            # Сохраняем в YAML
+            with open(backup_path, 'w', encoding='utf-8') as f:
+                yaml.dump(project_structure, f, default_flow_style=False, 
+                         allow_unicode=True, sort_keys=False, indent=2)
+            
+            # Создаем существующую директорию с файлами
+            restore_path.mkdir()
+            (restore_path / 'existing_file.txt').write_text('existing content', encoding='utf-8')
+            (restore_path / 'subdir').mkdir()
+            (restore_path / 'subdir' / 'nested.txt').write_text('nested content', encoding='utf-8')
+            
+            # Восстанавливаем в режиме overwrite
+            with open(backup_path, 'r', encoding='utf-8') as f:
+                restored_data = yaml.safe_load(f)
+            
+            created_files = create_directory_structure(restore_path, restored_data['structure'])
+            
+            # Проверяем, что файлы из бэкапа перезаписаны
+            assert created_files == 2
+            assert (restore_path / 'main.py').exists()
+            assert (restore_path / 'README.md').exists()
+            assert (restore_path / 'main.py').read_text(encoding='utf-8') == 'print("hello")'
+            assert (restore_path / 'README.md').read_text(encoding='utf-8') == '# Project'
+            
+            # Проверяем, что существующие файлы остались (не удалены)
+            assert (restore_path / 'existing_file.txt').exists()
+            assert (restore_path / 'subdir' / 'nested.txt').exists()
+            assert (restore_path / 'existing_file.txt').read_text(encoding='utf-8') == 'existing content'
+            assert (restore_path / 'subdir' / 'nested.txt').read_text(encoding='utf-8') == 'nested content'
+    
     def test_full_backup_restore_cycle(self):
         """Тест полного цикла создания и восстановления бэкапа"""
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -145,6 +191,7 @@ class TestIntegration:
             source_path.mkdir()
             (source_path / 'main.py').write_text('print("hello")', encoding='utf-8')
             (source_path / 'README.md').write_text('# Project', encoding='utf-8')
+            (source_path / 'config').mkdir()
             (source_path / 'config' / 'settings.yml').write_text('debug: true', encoding='utf-8')
             
             # Создаем бэкап
