@@ -13,6 +13,10 @@
    - **Repository name**: `simple-backup-tool`
    - **Workflow filename**: `.github/workflows/auto-release.yml`
    - **Environment name**: оставьте пустым (или укажите конкретное окружение)
+
+**Важно**: Убедитесь, что все параметры точно совпадают с claims из ошибки:
+- `repository`: `vpuhoff/simple-backup-tool` ✅
+- `workflow_ref`: `vpuhoff/simple-backup-tool/.github/workflows/auto-release.yml@refs/tags/v0.1.2` ✅
 5. Нажмите "Add pending publisher"
 6. После этого PyPI будет автоматически публиковать пакеты при запуске workflow
 
