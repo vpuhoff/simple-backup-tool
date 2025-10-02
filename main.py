@@ -39,8 +39,8 @@ def read_file_content(file_path: Path) -> str:
     return f"<ОШИБКА: Не удалось прочитать файл {file_path}>"
 
 
-def scan_directory(root_path: Path) -> Dict[str, Any]:
-    """Сканирует директорию и возвращает структуру проекта."""
+def scan_directory_optimized(root_path: Path) -> Dict[str, Any]:
+    """Оптимизированное сканирование директории с пропуском исключаемых папок."""
     project_structure = {
         'metadata': {
             'root_path': str(root_path.absolute()),
@@ -54,35 +54,50 @@ def scan_directory(root_path: Path) -> Dict[str, Any]:
     files_count = 0
     dirs_count = 0
     
-    for item in root_path.rglob('*'):
-        if item.is_file() and should_include_file(item):
-            rel_path = item.relative_to(root_path)
-            path_parts = list(rel_path.parts)
-            
-            current_level = project_structure['structure']
-            for i, part in enumerate(path_parts[:-1]):
-                if part not in current_level:
-                    current_level[part] = {}
-                    dirs_count += 1
-                current_level = current_level[part]
-            
-            filename = path_parts[-1]
-            content = read_file_content(item)
-            current_level[filename] = {
-                'type': 'file',
-                'content': content,
-                'size': item.stat().st_size,
-                'modified': item.stat().st_mtime
-            }
-            files_count += 1
-            
-        elif item.is_dir() and should_skip_directory(item.name):
-            continue
+    def scan_recursive(current_path: Path, current_structure: Dict[str, Any]):
+        nonlocal files_count, dirs_count
+        
+        try:
+            for item in current_path.iterdir():
+                if item.is_file() and should_include_file(item):
+                    # Обрабатываем файл
+                    content = read_file_content(item)
+                    current_structure[item.name] = {
+                        'type': 'file',
+                        'content': content,
+                        'size': item.stat().st_size,
+                        'modified': item.stat().st_mtime
+                    }
+                    files_count += 1
+                    
+                elif item.is_dir():
+                    # Проверяем, нужно ли пропустить директорию
+                    if should_skip_directory(item.name):
+                        continue
+                    
+                    # Создаем директорию в структуре
+                    if item.name not in current_structure:
+                        current_structure[item.name] = {}
+                        dirs_count += 1
+                    
+                    # Рекурсивно сканируем только если не пропускаем
+                    scan_recursive(item, current_structure[item.name])
+                    
+        except PermissionError:
+            # Пропускаем директории без доступа
+            pass
+    
+    scan_recursive(root_path, project_structure['structure'])
     
     project_structure['metadata']['total_files'] = files_count
     project_structure['metadata']['total_directories'] = dirs_count
     
     return project_structure
+
+
+def scan_directory(root_path: Path) -> Dict[str, Any]:
+    """Сканирует директорию и возвращает структуру проекта."""
+    return scan_directory_optimized(root_path)
 
 
 def create_directory_structure(base_path: Path, structure: Dict[str, Any]) -> int:
