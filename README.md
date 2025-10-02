@@ -8,32 +8,36 @@
 pip install simple-backup
 ```
 
+> **Важно**: После установки используйте команду `simple-backup`, а НЕ `python -m simple-backup`!
+
 ## Использование
+
+После установки пакета доступна команда `simple-backup` (НЕ `python -m simple-backup`).
 
 ### Создание бэкапа
 
 ```bash
 # Создать бэкап текущей директории
-python -m simple-backup create backup.yml
+simple-backup create backup.yml
 
 # Создать бэкап конкретной директории
-python -m simple-backup create backup.yml --path /path/to/project
+simple-backup create backup.yml --path /path/to/project
 
 # Подробный вывод
-python -m simple-backup create backup.yml --verbose
+simple-backup create backup.yml --verbose
 ```
 
 ### Восстановление из бэкапа
 
 ```bash
 # Восстановить проект
-python -m simple-backup restore backup.yml /path/to/restore
+simple-backup restore backup.yml /path/to/restore
 
 # Предварительный просмотр
-python -m simple-backup restore backup.yml /path/to/restore --preview
+simple-backup restore backup.yml /path/to/restore --preview
 
 # Принудительная перезапись
-python -m simple-backup restore backup.yml /path/to/restore --force
+simple-backup restore backup.yml /path/to/restore --force
 ```
 
 ## Примеры использования
@@ -41,13 +45,13 @@ python -m simple-backup restore backup.yml /path/to/restore --force
 ### Создание бэкапа проекта
 ```bash
 cd /path/to/your/project
-python -m simple-backup create project_backup.yml
+simple-backup create project_backup.yml
 ```
 
 ### Перенос на другой компьютер
 1. Скопируйте `project_backup.yml` на другой компьютер
 2. Установите simple-backup: `pip install simple-backup`
-3. Восстановите проект: `python -m simple-backup restore project_backup.yml /mnt/data/project_folder`
+3. Восстановите проект: `simple-backup restore project_backup.yml /mnt/data/project_folder`
 
 ## Поддерживаемые файлы
 
@@ -95,8 +99,8 @@ pip install -e .
 
 ```bash
 # Локальное тестирование
-python -m simple-backup create test_backup.yml
-python -m simple-backup restore test_backup.yml test_restore
+simple-backup create test_backup.yml
+simple-backup restore test_backup.yml test_restore
 
 # Запуск тестов
 pytest
