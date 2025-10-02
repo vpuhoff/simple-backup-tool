@@ -171,11 +171,26 @@ def create(output_file, path, verbose):
         output_path = Path(output_file)
         click.echo("💾 Сохранение в YAML файл...")
         
-        with click.progressbar(length=1, label='Запись YAML файла') as bar:
+        # Показываем прогресс для записи YAML (более честно)
+        total_files = project_structure['metadata']['total_files']
+        with click.progressbar(length=total_files, label='Запись YAML файла') as bar:
+            # Сначала записываем в буфер
+            import io
+            buffer = io.StringIO()
+            yaml.dump(project_structure, buffer, default_flow_style=False, 
+                     allow_unicode=True, sort_keys=False, indent=2)
+            
+            # Затем записываем в файл с прогрессом
+            content = buffer.getvalue()
+            lines = content.split('\n')
+            lines_per_file = max(1, len(lines) // total_files) if total_files > 0 else 1
+            
             with open(output_path, 'w', encoding='utf-8') as f:
-                yaml.dump(project_structure, f, default_flow_style=False, 
-                         allow_unicode=True, sort_keys=False, indent=2)
-            bar.update(1)
+                for i, line in enumerate(lines):
+                    f.write(line + '\n')
+                    # Обновляем прогресс каждые N строк
+                    if i % lines_per_file == 0:
+                        bar.update(1)
         
         click.echo(f"\n✓ Бэкап создан успешно!")
         click.echo(f"📄 Файл сохранен: {output_path.absolute()}")
