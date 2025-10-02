@@ -100,7 +100,7 @@ def scan_directory(root_path: Path) -> Dict[str, Any]:
     return scan_directory_optimized(root_path)
 
 
-def create_directory_structure(base_path: Path, structure: Dict[str, Any]) -> int:
+def create_directory_structure(base_path: Path, structure: Dict[str, Any], progress_bar=None) -> int:
     """Рекурсивно создает структуру директорий и файлов."""
     created_files = 0
     
@@ -115,7 +115,10 @@ def create_directory_structure(base_path: Path, structure: Dict[str, Any]) -> in
                     f.write(content['content'])
                 
                 created_files += 1
-                click.echo(f"✓ Создан файл: {current_path}")
+                if progress_bar:
+                    progress_bar.update(1)
+                else:
+                    click.echo(f"✓ Создан файл: {current_path}")
                 
             except Exception as e:
                 click.echo(f"✗ Ошибка при создании файла {current_path}: {e}")
@@ -123,9 +126,10 @@ def create_directory_structure(base_path: Path, structure: Dict[str, Any]) -> in
         elif isinstance(content, dict):
             try:
                 current_path.mkdir(parents=True, exist_ok=True)
-                click.echo(f"📁 Создана директория: {current_path}")
+                if not progress_bar:  # Показываем только если нет прогресс-бара
+                    click.echo(f"📁 Создана директория: {current_path}")
                 
-                created_files += create_directory_structure(current_path, content)
+                created_files += create_directory_structure(current_path, content, progress_bar)
                 
             except Exception as e:
                 click.echo(f"✗ Ошибка при создании директории {current_path}: {e}")
@@ -158,14 +162,20 @@ def create(output_file, path, verbose):
         click.echo("Включаемые файлы: .py, .md, .yml, .yaml, .txt, .json, .toml, .cfg, .ini")
     
     try:
-        with click.progressbar(length=1, label='Создание бэкапа') as bar:
+        # Этап 1: Сканирование
+        with click.progressbar(length=1, label='Сканирование директории') as bar:
             project_structure = scan_directory(root_path)
             bar.update(1)
         
+        # Этап 2: Сохранение в YAML
         output_path = Path(output_file)
-        with open(output_path, 'w', encoding='utf-8') as f:
-            yaml.dump(project_structure, f, default_flow_style=False, 
-                     allow_unicode=True, sort_keys=False, indent=2)
+        click.echo("💾 Сохранение в YAML файл...")
+        
+        with click.progressbar(length=1, label='Запись YAML файла') as bar:
+            with open(output_path, 'w', encoding='utf-8') as f:
+                yaml.dump(project_structure, f, default_flow_style=False, 
+                         allow_unicode=True, sort_keys=False, indent=2)
+            bar.update(1)
         
         click.echo(f"\n✓ Бэкап создан успешно!")
         click.echo(f"📄 Файл сохранен: {output_path.absolute()}")
@@ -221,8 +231,7 @@ def restore(yaml_file, output_dir, preview, force):
         output_path.mkdir(parents=True, exist_ok=True)
         
         with click.progressbar(length=metadata.get('total_files', 1), label='Восстановление файлов') as bar:
-            created_files = create_directory_structure(output_path, project_data['structure'])
-            bar.update(created_files)
+            created_files = create_directory_structure(output_path, project_data['structure'], bar)
         
         click.echo(f"\n✓ Восстановление завершено!")
         click.echo(f"📊 Статистика:")
